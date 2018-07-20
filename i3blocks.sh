@@ -343,7 +343,7 @@ case $1 in
             fi;
             tmp="$tmp°"
 
-            pres="`echo $json | grep -Pio '"pressure":\d+' | sed 's/"pressure"://'`"
+            pres="`echo $json | grep -Pio '"pressure":\d+' | sed 's/"pressure"://'`"
             humi="`echo $json | grep -Pio '"humidity":\d+' | sed 's/"humidity"://'`%"
             spee=`echo $json | grep -Pio '"speed":[\d.]+' | sed 's/"speed"://'`
             spee=`echo "$spee * 3.6" | bc -l`
