@@ -1,0 +1,192 @@
+###############################
+#        MONITORS             #
+###############################
+exec --no-startup-id xrandr --output LVDS1 --mode 1366x768  --primary
+exec --no-startup-id xrandr --output HDMI2 --mode 1920x1080 --auto --right-of LVDS1
+set $monitorLeft  LVDS1
+set $monitorRight HDMI2
+###############################
+#        PROGRAMS             #
+###############################
+#  --fading
+exec --no-startup-id compton --no-dock-shadow --no-dnd-shadow
+exec --no-startup-id feh --randomize --bg-scale ~/Pictures/Wallpapers/*
+exec --no-startup-id nm-applet
+exec --no-startup-id volumeicon
+exec --no-startup-id redshift-gtk
+exec --no-startup-id solaar
+###############################
+#        KEYBOARD             #
+###############################
+set $a Mod1
+set $s Shift
+set $w Mod4
+###############################
+#        SHORTCUT ENV         #
+###############################
+bindsym $w+f    fullscreen toggle
+bindsym $w+$s+q kill
+bindsym $a+F4   kill
+bindsym $w+s    layout     stacking
+bindsym $w+w    layout     tabbed
+bindsym $w+e    layout     toggle   split
+bindsym $w+h    split      h
+bindsym $w+v    split      v
+###############################
+#        I3WM                 #
+###############################
+bindsym $w+$s+c   reload
+bindsym $w+$s+e   exec --no-startup-id  "i3-nagbar -t warning -m 'Kill X session ?' -b 'Yes, exit i3' 'i3-msg exit'"
+bindsym $w+$s+r   restart
+bindsym $w+d      exec --no-startup-id i3-dmenu-desktop
+bindsym $w+Return exec --no-startup-id i3-sensible-terminal -x byobu
+bindsym --release Print       exec "~/.config/i3/i3blocks.sh printscreen"
+bindsym --release Shift+Print exec "~/.config/i3/i3blocks.sh printscreen -s"
+# Volume control
+bindsym XF86AudioRaiseVolume exec amixer -q -D pulse sset Master 2%+ && pkill -RTMIN+1 i3blocks
+bindsym XF86AudioLowerVolume exec amixer -q -D pulse sset Master 2%- && pkill -RTMIN+1 i3blocks
+#bindsym XF86AudioMute exec amixer -q -D pulse sset Master toggle && pkill -RTMIN+1 i3blocks
+
+#bindsym XF86AudioRaiseVolume  exec --no-startup-id "amixer set Master 2+"
+#bindsym XF86AudioLowerVolume  exec --no-startup-id "amixer set Master 2-"
+bindsym XF86AudioMute          exec --no-startup-id "amixer set Master toggle"
+# Sreen brightness controls
+bindsym XF86MonBrightnessDown exec --no-startup-id xbacklight -dec 5
+bindsym XF86MonBrightnessUp   exec --no-startup-id xbacklight -inc 5
+
+###############################
+#        WINDOWS              #
+###############################
+# toggle tiling / floating
+bindsym $w+$s+space floating toggle
+# change focus
+bindsym $w+Left  focus left
+bindsym $w+Down  focus down
+bindsym $w+Up    focus up
+bindsym $w+Right focus right
+# change focus between tiling / floating windows
+bindsym $w+space focus mode_toggle
+# focus the parent container
+bindsym $w+a     focus parent
+# resize window (you can also use the mouse for that)
+bindsym $w+r     mode  "resize"
+mode "resize" {
+    bindsym Left  resize shrink width  10 px or 10 ppt
+    bindsym Down  resize grow   height 10 px or 10 ppt
+    bindsym Up    resize shrink height 10 px or 10 ppt
+    bindsym Right resize grow   width  10 px or 10 ppt
+    # back to normal: Enter or Escape
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+# move focused window
+bindsym $w+$s+Left  move left
+bindsym $w+$s+Down  move down
+bindsym $w+$s+Up    move up
+bindsym $w+$s+Right move right
+# windows floating size
+floating_minimum_size 75 x 50
+floating_maximum_size -1 x -1
+###############################
+#        APPEARANCE           #
+###############################
+font pango:Droid Sans Mono 10
+new_window 1pixel
+new_float  1pixel
+# class                 border  backgr. text    indicator child_border
+client.focused          #6c71c4 #6c71c4 #fdf6e3 #6c71c4
+client.focused_inactive #073642 #073642 #eee8d5 #6c71c4
+client.unfocused        #073642 #073642 #93a1a1 #586e75
+client.urgent           #d33682 #d33682 #fdf6e3 #dc322f
+###############################
+#        OPTIONS              #
+###############################
+focus_follows_mouse yes
+workspace_layout    default
+workspace_auto_back_and_forth yes
+# Use Mouse+$w to drag floating windows to their wanted position
+floating_modifier   $w
+###############################
+#        WORKSPACES           #
+###############################
+# association workspace and screen
+#workspace 1 output $monitorLeft
+#workspace 2 output $monitorRight
+# switch to workspace
+bindsym $w+1 workspace 1
+bindsym $w+2 workspace 2
+bindsym $w+3 workspace 3
+bindsym $w+4 workspace 4
+bindsym $w+5 workspace 5
+bindsym $w+6 workspace 6
+bindsym $w+7 workspace 7
+# move focused container to workspace
+bindsym $w+$s+1 move container to workspace 1
+bindsym $w+$s+2 move container to workspace 2
+bindsym $w+$s+3 move container to workspace 3
+bindsym $w+$s+4 move container to workspace 4
+bindsym $w+$s+5 move container to workspace 5
+bindsym $w+$s+6 move container to workspace 6
+bindsym $w+$s+7 move container to workspace 7
+# start program on specific
+#workspace "1: xfce4-terminal" output $monitorLeft
+# put application
+#assign [class="Firefox"]     1
+#assign [class="Thunderbird"] 2
+#assign [class="Nemo2"]       2
+#assign [class="Slack"]       3
+#for_window [class="Slack|Telegram|Pidgin"] move to workspace 3
+###############################
+#        BAR                  #
+###############################
+bindsym $w+b bar mode toggle
+bar {
+    #verbose yes
+    workspace_buttons yes
+    separator_symbol "i"
+    position bottom
+    tray_padding 1
+
+    #font pango:Ubuntu Nerd Font Complete 11
+    font pango:Droid Sans Mono 10
+
+    # choix par défaut i3status.conf
+    status_command i3blocks -c ~/.config/i3/i3blocks.conf
+    colors {
+        separator  #ff0000
+        background #000000
+        statusline #839496
+        focused_workspace  #fdf6e3 #6c71c4 #fdf6e3
+        active_workspace   #fdf6e3 #6c71c4 #fdf6e3
+        inactive_workspace #002b36 #586e75 #002b36
+        urgent_workspace   #d33682 #d33682 #fdf6e3
+    }
+    tray_output primary
+    #output primary
+}
+###############################
+# LOCK SHUTDOWN BOOT SLEEP    #
+###############################
+set $lock    ~/.config/i3/i3lock-multimonitor/lock
+set $black   ~/.config/i3/i3blocks.sh black
+set $monitor ~/.config/i3/i3blocks.sh monitor
+
+bindsym $w+l    exec --no-startup-id $lock
+bindsym $w+$s+s exec --no-startup-id $monitor
+
+#set $lock i3lock --tiling --ignore-empty-password -i /home/ionl/Pictures/Wallpapers/keeper.png
+set $sys System b=black | l=lock | e=logout | s=suspend | h=hibernate | r=reboot | p=poweroff
+mode "$sys" {
+    bindsym b exec --no-startup-id $black,                       mode "default"
+    bindsym e exec --no-startup-id i3-msg exit,                  mode "default"
+    bindsym h exec --no-startup-id $lock && systemctl hibernate, mode "default"
+    bindsym l exec --no-startup-id $lock,                        mode "default"
+    bindsym p exec --no-startup-id systemctl poweroff,           mode "default"
+    bindsym r exec --no-startup-id systemctl reboot,             mode "default"
+    bindsym s exec --no-startup-id $lock && systemctl suspend,   mode "default"
+
+    # back to normal: Enter or Escape
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $w+n mode "$sys"
