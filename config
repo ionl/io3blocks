@@ -148,7 +148,8 @@ bar {
     tray_padding 1
 
     #font pango:Ubuntu Nerd Font Complete 11
-    font pango:Droid Sans Mono 10
+    #font pango:Droid Sans Mono 10
+    font pango:Ubuntu Nerd Font 11
 
     # choix par défaut i3status.conf
     status_command i3blocks -c ~/.config/i3/i3blocks.conf
