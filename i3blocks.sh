@@ -6,6 +6,23 @@
 source ~/.config/i3/i3blocks.ini
 
 ###
+# battery level
+batteryLevel () {
+    bat="?"
+    if   [ "$1" -gt "97" ]; then bat="";
+    elif [ "$1" -gt "90" ]; then bat="";
+    elif [ "$1" -gt "80" ]; then bat="";
+    elif [ "$1" -gt "70" ]; then bat="";
+    elif [ "$1" -gt "60" ]; then bat="";
+    elif [ "$1" -gt "50" ]; then bat="";
+    elif [ "$1" -gt "40" ]; then bat="";
+    elif [ "$1" -gt "30" ]; then bat="";
+    elif [ "$1" -gt "20" ]; then bat="";
+    elif [ "$1" -gt "10" ]; then bat="";
+    elif [ "$1" -gt "-1" ]; then bat="";
+    fi;
+    echo $bat
+}
 # convert code to icon from openweathermap api
 iconImg () {
   strength=${1:2:1}
@@ -13,20 +30,18 @@ iconImg () {
     2) ico="";;
     3) ico="☂";;
     5) ico="";;
-    # U+1F32B
-    7) ico="🌫";;
+    7) ico="(.)";;
     8)
-    if [ "$1" == "800" ]; then
-      ico="☀";
-      strength="";
-    elif [ "$1" == "801" ]; then
-      ico="☁";
-      strength="";
-    else
-      ico="";
-    fi;
-    ico="☀"
-    ;;
+        if [ "$1" == "800" ]; then
+          ico="☀";
+          strength="";
+        elif [ "$1" == "801" ]; then
+          ico="☁";
+          strength="";
+        else
+          ico="";
+        fi;
+        ico="☀";;
     *) ico="?";;
   esac
   echo "$ico`iconStrength $strength`"
@@ -72,21 +87,20 @@ windDirection () {
 # Beaufort scale wind speed
 windPower () {
   if   [ -z $1 ];      then echo "~";
-  elif [ $1 -lt  1 ];  then echo "0";
-  elif [ $1 -lt  6 ];  then echo "1";
-  elif [ $1 -lt 12 ];  then echo "2";
-  elif [ $1 -lt 20 ];  then echo "3";
-  elif [ $1 -lt 29 ];  then echo "4";
-  elif [ $1 -lt 39 ];  then echo "5";
-  elif [ $1 -lt 50 ];  then echo "6";
-  elif [ $1 -lt 62 ];  then echo "7";
-  elif [ $1 -lt 75 ];  then echo "8";
-  elif [ $1 -lt 89 ];  then echo "9";
-  elif [ $1 -lt 103 ]; then echo "10";
-  elif [ $1 -lt 118 ]; then echo "11";
-  else echo "12 $1"; fi;
+  elif [ $1 -lt  1 ];  then echo "";
+  elif [ $1 -lt  6 ];  then echo "";
+  elif [ $1 -lt 12 ];  then echo "";
+  elif [ $1 -lt 20 ];  then echo "";
+  elif [ $1 -lt 29 ];  then echo "";
+  elif [ $1 -lt 39 ];  then echo "";
+  elif [ $1 -lt 50 ];  then echo "";
+  elif [ $1 -lt 62 ];  then echo "";
+  elif [ $1 -lt 75 ];  then echo "";
+  elif [ $1 -lt 89 ];  then echo "";
+  elif [ $1 -lt 103 ]; then echo "";
+  elif [ $1 -lt 118 ]; then echo "";
+  else echo ""; fi;
 }
-
 ###
 # Main
 out=
@@ -105,30 +119,16 @@ case $1 in
         mic=" "
         out="$mic$ico$lvl";;
 
-    battery)
-        # 
-        # battery 2 methods : "acpi -bi" or "tlp-stats -b"
+    battery) #  battery 2 methods : "acpi -bi" or "tlp-stats -b"
         tlp=`sudo tlp-stat -b`
         lvl="$(echo "$tlp" | grep remaining_percent | xargs | cut -d' ' -f3)"
-
-        if   [ "$lvl" -gt "97" ]; then bat="";
-        elif [ "$lvl" -gt "90" ]; then bat="";
-        elif [ "$lvl" -gt "80" ]; then bat="";
-        elif [ "$lvl" -gt "70" ]; then bat="";
-        elif [ "$lvl" -gt "60" ]; then bat="";
-        elif [ "$lvl" -gt "50" ]; then bat="";
-        elif [ "$lvl" -gt "40" ]; then bat="";
-        elif [ "$lvl" -gt "30" ]; then bat="";
-        elif [ "$lvl" -gt "20" ]; then bat="";
-        elif [ "$lvl" -gt "10" ]; then bat="";
-        elif [ "$lvl" -gt "-1" ]; then bat="";
-        fi;
+        bat=`batteryLevel $lvl`
 
         case $(echo "$tlp" | grep -i state | xargs | cut -d' ' -f3) in
           charging)
-            way="";;
+            way="+";;
           discharging)
-            way="";;
+            way="-";;
           full)
             way="full";;
           idle)
@@ -139,14 +139,12 @@ case $1 in
             way="?"
         esac
 
-        pwr=`sudo tlp-stat | grep -i "power source" | xargs | cut -d' ' -f4`
+        pwr=`tlp-stat -s | grep -i "power source" | xargs | cut -d' ' -f4`
         if [ "$pwr" == "AC" ]; then
             if [ "$lvl" -gt "90" ]; then
                 bat=
                 way=
             fi;
-            #way=$lvl
-
             itm=""
         else
             rem=
@@ -176,15 +174,11 @@ case $1 in
         fi;;
 
     load)
-        # load
         load=`cat /proc/loadavg | grep -Pio '\d.\d' | head -1 | awk '{printf("%.1f",$1)}' | xargs`
-        # cpu speed
         cpu="`lscpu | grep 'CPU MHz' | grep -Pio "\d+" | head -n1 | awk '{printf("%.1f",$1/1000)}' | xargs`"
-        # output
-        out="$cpu$load";;
+        out="$cpu $load";;
 
-    lock)
-        # create lock session
+    lock) # create lock session
         ;;
 
     memory)
@@ -222,10 +216,8 @@ case $1 in
         echo "${monitor_mode}" > /tmp/monitor_mode.dat;;
 
     network)
-        #ip=`curl -s ifconfig.me/ip`
-        ip=`curl -s ipinfo.io/ip`
-        #eth0=`ifconfig enp0s25 | grep 'inet ' | wc -l`
-        eth0=0
+        ip=`curl -s ipinfo.io/ip` #ip=`curl -s ifconfig.me/ip`
+        eth0=0                    #eth0=`ifconfig enp0s25 | grep 'inet ' | wc -l`
         #wifi=`tlp-stat -r | grep "wifi " | xargs`
         ssid=
         #rate=" `iwlist wlp3s0 bitrate | xargs | egrep -o '[0-9]{2,}'`Mb/s"
@@ -255,13 +247,28 @@ case $1 in
         out="$wifi$rate$eth0$ip"
         out=$icn;;
 
+    package)
+        i_ori=`pacman -Qent | wc -l`          # Packages installed by user
+        i_aur=`pacman -Qm   | wc -l`          # Foreign packages (AUR)
+        i_snd=`snap list | head -n-2 | wc -l` # Snap packages (canonical)
+        i_pak=`flatpak list --app | wc -l`    # Flatpak packages (gnome)
+        u_ori=`trizen -Qu  | wc -l`           # Arch packages to upgrade
+        u_aur=`trizen -Qua | wc -l`           # AUR packages to upgrade
+        orphan=`pacman -Qdt | wc -l`          # Orphans packages
+
+        if [ "$u_ori" -gt "0" ]; then u_ori="u$u_ori";    else u_ori=;  fi;
+        if [ "$u_aur" -gt "0" ]; then u_aur="u$u_aur";    else u_aur=;  fi;
+        if [ "$orphan" != "0" ]; then orphan="💀$orphan"; else orphan=; fi;
+
+        out="`logoDistribution`[$i_ori$u_ori $i_aur$u_aur $i_snd $i_pak]$orphan";;
+
     printscreen)
         params="-window root"
         screenshot=${screenshot_dest}$( date '+%Y-%m-%d_%H-%M-%S' )_screenshot.png
         import ${params} ${screenshot}
         xclip -selection clipboard -target image/png -i < ${screenshot};;
 
-    sensor)
+    sensors)
         if [ "$method" == "sensors" ]; then
             tmp=`sensors | grep temp1 | grep -Pio '\d+' | awk 'NR==2'`
             #fan="`sensors | grep fan1 | grep -Pio '\d+' | sed '2!d'`↺"
@@ -286,44 +293,15 @@ case $1 in
         upt="`uptime -p | grep -Pio '\d+ (min|days|hours),' | sed 's/\(in\|ours\|ays\),//g' | sed 's/ //g' | head -n1`"
 
         # output
-        out="$tmp $fan $upt";;
+        out="$tmp $fan $upt";;
 
-    system)
-        # all planified task (1 time per day)
-        sudo pacman -Syy > /dev/null 2>&1                            # refresh local database
-        sudo pacman -Sc --noconfirm > /dev/null 2>&1                 # remove all cache (used and unused packages)
-        sudo pacman -Rns --noconfirm `pacman -Qdtq` > /dev/null 2>&1 # remove orphans
-        out=;;
-
-    update)
-        # clear cache
-        i_ori=`pacman -Qent | wc -l`          # Packages installed by user
-        i_aur=`pacman -Qm   | wc -l`          # Foreign packages (AUR)
-        i_snd=`snap list | head -n-2 | wc -l` # Snap packages (canonical)
-        i_pak=`flatpak list --app | wc -l`    # Flatpak packages (gnome)
-        u_ori=`trizen -Qu  | wc -l`           # Arch packages to upgrade
-        u_aur=`trizen -Qua | wc -l`           # AUR packages to upgrade
-        orphan=`pacman -Qdt | wc -l`          # Orphans packages
-
-        if [ "$u_ori" -gt "0" ]; then u_ori="u$u_ori";    else u_ori=;  fi;
-        if [ "$u_aur" -gt "0" ]; then u_aur="u$u_aur";    else u_aur=;  fi;
-        if [ "$orphan" != "0" ]; then orphan="💀$orphan"; else orphan=; fi;
-
-        out="`logoDistribution`[$i_ori$u_ori $i_aur$u_aur $i_snd $i_pak]$orphan";;
+    system) # all planified task (1 time per day)
+        trizen -Syy                                   # refresh local database
+        sudo pacman -Sc  --noconfirm                  # remove all cache (used and unused packages)
+        sudo pacman -Rns --noconfirm `pacman -Qdtq`;; # remove orphans
 
     weather)
-        #
         # parse json python3 -c "import sys, json; print(json.load(sys.stdin)['weather'][0]['main'])"
-        #
-        # ☔ ⛄ ⛅ 🌞 🌩🌤 ⛈ 🌦
-        #  ☼☀ ★
-        #  
-        #   ☁       
-        #  
-        #  ☾
-        #  ☂ 
-        #  ❄☃
-        ##
         out="?"
         url="http://$api/data/2.5/weather?id=$id&APPID=$appid&units=metric"
         json=`curl -sL "$url"`
@@ -348,15 +326,14 @@ case $1 in
             spee=`echo $json | grep -Pio '"speed":[\d.]+' | sed 's/"speed"://'`
             spee=`echo "$spee * 3.6" | bc -l`
             spee="${spee%\.*}"
-            beau="`windPower $spee`b"
-            spee="煮${spee}"
+            beau="`windPower $spee`"
+            spee="${spee}km/h"
             wind=`echo $json | grep -Pio '"deg":\d+' | sed 's/"deg"://'`
             wind="`windDirection $wind`"
 
-            out="$tmp $pres $icon $humi $spee$wind$beau"
+            out="$tmp $pres $icon $humi $wind$spee$beau"
         fi;;
-    *)
-    ;;
+    *) ;;
 esac
 
 echo "$out";
