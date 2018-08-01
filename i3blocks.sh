@@ -158,7 +158,7 @@ case $1 in
         sleep 1; xset dpms force off;;
 
     date)
-        out="  `date '+%a%e %h %R'`";;
+        out="  `date '+%a%e %h %k:%M'`";;
 
     forecast)
         url="http://$api/data/2.5/forecast/daily?id=$id&APPID=$appid&units=metric&cnt=$forecastnbday"
