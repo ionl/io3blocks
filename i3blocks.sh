@@ -23,6 +23,27 @@ batteryLevel () {
     fi;
     echo $bat
 }
+# Disk Space (used|free)
+ds () {
+    su=0
+    if [ "$1" == "used" ]; then
+        if [ "$2" == "ram" ]; then
+            su=0
+        else
+            su=`/usr/bin/du -shx $HOME/$2 | /usr/bin/grep -Po '^\d+'`
+        fi
+    elif [ "$1" == "free" ]; then
+        if [ "$2" == "ram" ]; then
+            su=`free -m | grep Mem | awk '{print ($4+$6)/1024}' | grep -Po '^\d+'`
+        else
+            su=`df -lh --output=avail $2 | xargs | grep -Po '\d+'`
+        fi
+    fi
+    if [ "$su" -gt "99" ]; then
+        su="${su:0:1}²"
+    fi
+    echo $su
+}
 # convert code to icon from openweathermap api
 iconImg () {
   strength=${1:2:1}
@@ -181,12 +202,11 @@ case $1 in
     lock) # create lock session
         ;;
 
-    memory)
-        root=`df -h --output=avail / | xargs | grep -Po '\d+'`
-        home=`du -sh -x /home/ionl | grep -Po '\d+'`
-        hdd=`df -h --output=avail /home/ionl/2TO | xargs | grep -Po '\d+'`
-        ram=`free -m | grep Mem | awk '{print ($4+$6)/1024}' | grep -Po '^\d+'`
-        out="$root$hdd $home $ram";;
+    memory_free)
+        for i in ${list_dir_free[@]}; do out="$out ${i%,*}`ds free ${i#*,}`"; done;;
+
+    memory_used)
+        for i in ${list_dir_used[@]}; do out="$out ${i%,*}`ds used ${i#*,}`"; done;;
 
     monitor)
         EXTERNAL_OUTPUT="HDMI2"
@@ -336,5 +356,5 @@ case $1 in
     *) ;;
 esac
 
-echo "$out";
+echo "$out" | xargs;
 exit 0;
