@@ -23,27 +23,6 @@ batteryLevel () {
     fi;
     echo $bat
 }
-# Disk Space (used|free)
-ds () {
-    su=0
-    if [ "$1" == "used" ]; then
-        if [ "$2" == "ram" ]; then
-            su=0
-        else
-            su=`/usr/bin/du -shx $HOME/$2 | /usr/bin/grep -Po '^\d+'`
-        fi
-    elif [ "$1" == "free" ]; then
-        if [ "$2" == "ram" ]; then
-            su=`free -m | grep Mem | awk '{print ($4+$6)/1024}' | grep -Po '^\d+'`
-        else
-            su=`df -lh --output=avail $2 | xargs | grep -Po '\d+'`
-        fi
-    fi
-    if [ "$su" -gt "99" ]; then
-        su="${su:0:1}²"
-    fi
-    echo $su
-}
 # convert code to icon from openweathermap api
 iconImg () {
   strength=${1:2:1}
@@ -51,7 +30,19 @@ iconImg () {
     2) ico="";;
     3) ico="☂";;
     5) ico="";;
-    7) ico="(.)";;
+    7)  # Atmosphere
+        case "${1:1:1}" in
+            0) ico="(mist)";;
+            1) ico="(smke)";;
+            2) ico="(haze)";;
+            3) ico="(sand)";;
+            4) ico="(fog)";;
+            5) ico="(sand)";;
+            6) ico="(dust)";;
+            7) ico="(squall)";;
+            8) ico="(tornado)";;
+            *) ico="(unk)";;
+        esac;;
     8)
         if [ "$1" == "800" ]; then
           ico="☀";
@@ -91,6 +82,27 @@ logoDistribution () {
                   *) str="" ;;
     esac
     echo $str
+}
+# Disk Space (used|free)
+mem () {
+    su=0
+    if [ "$1" == "used" ]; then
+        if [ "$2" == "ram" ]; then
+            su=0
+        else
+            su=`/usr/bin/du -shx $HOME/$2 | /usr/bin/grep -Po '^\d+'`
+        fi
+    elif [ "$1" == "free" ]; then
+        if [ "$2" == "ram" ]; then
+            su=`free -m | grep Mem | awk '{print ($4+$6)/1024}' | grep -Po '^\d+'`
+        else
+            su=`df -lh --output=avail $2 | xargs | grep -Po '\d+'`
+        fi
+    fi
+    if [ "$su" -gt "99" ]; then
+        su="${su:0:1}²"
+    fi
+    echo $su
 }
 # convert angle to direction from openweathermap api
 windDirection () {
@@ -203,10 +215,10 @@ case $1 in
         ;;
 
     memory_free)
-        for i in ${list_dir_free[@]}; do out="$out ${i%,*}`ds free ${i#*,}`"; done;;
+        for i in ${list_dir_free[@]}; do out="$out ${i%,*}`mem free ${i#*,}`"; done;;
 
     memory_used)
-        for i in ${list_dir_used[@]}; do out="$out ${i%,*}`ds used ${i#*,}`"; done;;
+        for i in ${list_dir_used[@]}; do out="$out ${i%,*}`mem used ${i#*,}`"; done;;
 
     monitor)
         EXTERNAL_OUTPUT="HDMI2"
@@ -265,7 +277,9 @@ case $1 in
 
         ##  download
         out="$wifi$rate$eth0$ip"
-        out=$icn;;
+        out=$icn
+        out=$DISPLAY
+        ;;
 
     package)
         i_ori=`pacman -Qent | wc -l`          # Packages installed by user
@@ -278,9 +292,9 @@ case $1 in
 
         if [ "$u_ori" -gt "0" ]; then u_ori="u$u_ori";    else u_ori=;  fi;
         if [ "$u_aur" -gt "0" ]; then u_aur="u$u_aur";    else u_aur=;  fi;
-        if [ "$orphan" != "0" ]; then orphan="💀$orphan"; else orphan=; fi;
+        if [ "$orphan" != "0" ]; then orphan="$orphan"; else orphan=; fi; # 💀
 
-        out="`logoDistribution`[$i_ori$u_ori $i_aur$u_aur $i_snd $i_pak]$orphan";;
+        out="`logoDistribution`{$i_ori$u_ori $i_aur$u_aur $i_snd $i_pak}$orphan";;
 
     printscreen)
         params="-window root"
