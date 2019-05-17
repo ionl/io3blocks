@@ -9,12 +9,13 @@ set $monitorRight HDMI2
 #        PROGRAMS             #
 ###############################
 #  --fading
+# bug below with transparency icon bar
 exec --no-startup-id compton --no-dock-shadow --no-dnd-shadow
 exec --no-startup-id feh --randomize --bg-scale ~/Pictures/Wallpapers/*
 exec --no-startup-id nm-applet
 exec --no-startup-id volumeicon
 exec --no-startup-id redshift-gtk
-exec --no-startup-id solaar
+#exec --no-startup-id solaar
 ###############################
 #        KEYBOARD             #
 ###############################
@@ -25,6 +26,7 @@ set $w Mod4
 #        SHORTCUT ENV         #
 ###############################
 bindsym $w+f    fullscreen toggle
+bindsym $w+g    fullscreen toggle global
 bindsym $w+$s+q kill
 bindsym $a+F4   kill
 bindsym $w+s    layout     stacking
@@ -38,7 +40,13 @@ bindsym $w+v    split      v
 bindsym $w+$s+c   reload
 bindsym $w+$s+e   exec --no-startup-id  "i3-nagbar -t warning -m 'Kill X session ?' -b 'Yes, exit i3' 'i3-msg exit'"
 bindsym $w+$s+r   restart
-bindsym $w+d      exec --no-startup-id i3-dmenu-desktop
+##
+# rofi
+#bindsym $w+d      exec --no-startup-id i3-dmenu-desktop
+set $rofi "rofi -combi-modi window,drun -show combi -modi combi"
+bindsym $w+d      exec $rofi
+bindsym $a+Tab    exec $rofi
+##
 bindsym $w+Return exec --no-startup-id i3-sensible-terminal -x byobu
 bindsym --release Print       exec "~/.config/i3/i3blocks.sh printscreen"
 bindsym --release Shift+Print exec "~/.config/i3/i3blocks.sh printscreen -s"
@@ -88,7 +96,8 @@ floating_maximum_size -1 x -1
 ###############################
 #        APPEARANCE           #
 ###############################
-font pango:Droid Sans Mono 10
+#font pango:Droid Sans Mono 10
+font pango: Ubuntu mono Font 11
 new_window 1pixel
 new_float  1pixel
 # class                 border  backgr. text    indicator child_border
@@ -141,20 +150,23 @@ bindsym $w+b bar mode toggle
 bar {
     #verbose yes
     workspace_buttons yes
-    separator_symbol "i"
+    separator_symbol "_"
     position bottom
     tray_padding 2
 
     #font pango:Ubuntu Nerd Font Complete 11
     #font pango:Droid Sans Mono 10
-    font pango:Ubuntu Nerd Font 11
+    font pango:Ubuntu mono Font 10
+    #font pango:DejaVu Sans Mono 10
 
     # choix par défaut i3status.conf
     status_command i3blocks -c ~/.config/i3/i3blocks.conf
+    # i3bar command (default)
+    # i3bar_command  i3bar ~/.config/i3/old/i3status.conf
     colors {
         separator  #ff0000
         background #000000
-        statusline #839496
+        statusline #839496r
         focused_workspace  #fdf6e3 #6c71c4 #fdf6e3
         active_workspace   #fdf6e3 #6c71c4 #fdf6e3
         inactive_workspace #002b36 #586e75 #002b36

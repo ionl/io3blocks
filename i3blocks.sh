@@ -181,8 +181,8 @@ case $1 in
             itm=""
         else
             rem=
-            if [ "$lvl" -lt "10" ]; then
-                rem="$(echo "$tlp" | grep remaining_running_time_now | xargs | cut -d' ' -f3)'"
+            if [ "$lvl" -lt "15" ]; then
+                rem=$(echo "$tlp" | grep remaining_running_time_now | xargs | cut -d' ' -f3)
             fi;
         fi;
         out="$itm$bat$way$rem";;
@@ -191,8 +191,8 @@ case $1 in
         sleep 1; xset dpms force off;;
 
     date)
-        out="  `date '+%a%e %h %k:%M'`";;
-
+        #out="  `date '+%a%e %h %k:%M'`";;
+        out="  `date '+%A %e %B %k:%M'`";;
     forecast)
         url="http://$api/data/2.5/forecast/daily?id=$id&APPID=$appid&units=metric&cnt=$forecastnbday"
         json=`curl -sL "$url"`
@@ -248,7 +248,7 @@ case $1 in
         echo "${monitor_mode}" > /tmp/monitor_mode.dat;;
 
     network)
-        ip=`curl -s ipinfo.io/ip` #ip=`curl -s ifconfig.me/ip`
+        #ip=`curl -s ipinfo.io/ip` #ip=`curl -s ifconfig.me/ip`
         eth0=0                    #eth0=`ifconfig enp0s25 | grep 'inet ' | wc -l`
         #wifi=`tlp-stat -r | grep "wifi " | xargs`
         ssid=
